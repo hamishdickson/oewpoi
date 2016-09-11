@@ -1,5 +1,6 @@
 
 // http://howtodoinjava.com/apache-commons/readingwriting-excel-files-in-java-poi-tutorial/
+/*
 object Bad {
   def start = {
     val file = new FileInputStream(new File("example.xlsx"))
@@ -11,3 +12,4 @@ object Bad {
     val sheet = wookbook.getSheetAt(0)
   }
 }
+*/
