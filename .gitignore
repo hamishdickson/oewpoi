@@ -2,3 +2,5 @@
 .ensime_cache
 
 target/
+
+example.xlsx
