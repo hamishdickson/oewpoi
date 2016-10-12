@@ -5,12 +5,10 @@ final case class Row[A](c: Int)
 final case class Sheet[A](id: Int)
 //final case class Workbook(fileLocation: String)
 
-
 sealed trait PoiF[A]
 case class GetSheet[A](id: Int) extends PoiF[Sheet[A]]
 case class GetRow[A](sheet: Sheet[A]) extends PoiF[Row[A]]
 //case class GetCells[A](r: Row[A]) extends PoiF[List[Cell[A]]]
-
 
 object Oewpoi {
   import cats.free.Free
@@ -27,9 +25,9 @@ object Oewpoi {
     // impure stuff here
      def apply[A](fa: PoiF[A]): Id[A] = fa match {
        case GetSheet(id) =>
-         Sheet(id)
+          Sheet(id)
        case GetRow(s) =>
-        Row(s.id)
+          Row(s.id)
     }
   }
 
