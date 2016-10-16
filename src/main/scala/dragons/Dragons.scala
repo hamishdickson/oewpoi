@@ -13,7 +13,6 @@ import cats.implicits._
 
 /**
  * This is the kind of horrible code you'd have to write if you use poi "out the box"
- * It's horrible and involves mutable state everywhere
  */
 object Dragons {
   sealed trait PCell
@@ -23,7 +22,7 @@ object Dragons {
   case object BlackCell extends PCell
   case class ErrorCell(e: Byte) extends PCell
 
-  lazy val getWorkbook: String => XSSFWorkbook = fileName => {
+  def getWorkbook(fileName: String): XSSFWorkbook = {
     val file = new FileInputStream(new File(fileName))
     new XSSFWorkbook(file)
   }
@@ -32,7 +31,7 @@ object Dragons {
   def getSheet(wb: XSSFWorkbook, id: Int): XSSFSheet = wb.getSheetAt(id)
 
   /**
-   * In case you don't know, this gives you real crap
+   * In case you don't know, this gives you some real crap
    */
   def getRows(sheet: XSSFSheet): List[Row] = sheet.iterator.toList
 
@@ -44,6 +43,7 @@ object Dragons {
       c <- getCells(r)
     } yield c.show
 
+  // because... this enum thing is terrible
   def getPCell(c: Cell): PCell = c.getCellType() match {
     case Cell.CELL_TYPE_STRING => StrCell(c.getStringCellValue())
     case Cell.CELL_TYPE_NUMERIC => NumCell(c.getNumericCellValue())
