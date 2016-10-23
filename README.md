@@ -18,5 +18,16 @@ val foo = for {
 foo.foldMap(unsafePerofrmIO)
 ```
 
+The aim here is to end up in a position where we can say
+
+```scala
+case class Bar(id: Int, age: Int, sex: String, occupation: String)
+
+foo.as[Bar]
+// Bar(1, 24, M, technician)
+```
+
+or something... I'm still working on it
+
 
 Credit: the idea for this library comes from discussions with the folks at [ASI Data Science](theasi.co)

@@ -17,12 +17,14 @@ import org.apache.poi.xssf.usermodel._
 
 object Oewpoi {
   type SheetId = Int
+  type Rows = List[Row]
+  type Cells = List[Cell]
 
   sealed trait Poi[A]
   case class GetWorkbook(fileName: String) extends Poi[XSSFWorkbook]
   case class GetSheet(wb: XSSFWorkbook, id: SheetId) extends Poi[XSSFSheet]
-  case class GetRows(sheet: XSSFSheet) extends Poi[List[Row]]
-  case class GetCells(row: Row) extends Poi[List[Cell]]
+  case class GetRows(sheet: XSSFSheet) extends Poi[Rows]
+  case class GetCells(row: Row) extends Poi[Cells]
 
   type PoiF[A] = Free[Poi, A]
 
@@ -32,14 +34,36 @@ object Oewpoi {
   def getSheet(wb: XSSFWorkbook, id: SheetId): PoiF[XSSFSheet] =
     liftF[Poi, XSSFSheet](GetSheet(wb, id))
 
-  def getRows(sheet: XSSFSheet): PoiF[List[Row]] =
-    liftF[Poi, List[Row]](GetRows(sheet))
+  def getRows(sheet: XSSFSheet): PoiF[Rows] =
+    liftF[Poi, Rows](GetRows(sheet))
 
-  def getCells(row: Row): PoiF[List[Cell]] =
-    liftF[Poi, List[Cell]](GetCells(row))
+  def getCells(row: Row): PoiF[Cells] =
+    liftF[Poi, Cells](GetCells(row))
 }
 
 object Utils {
+  import Oewpoi._
+
+  // first (kinda dumb interpreter)
+  def unsafePerformIO: Poi ~> Id =
+    new (Poi ~> Id) {
+      def apply[A](fa: Poi[A]): Id[A] = fa match {
+        case GetWorkbook(fileName) => {
+          val file = new FileInputStream(new File(fileName))
+          new XSSFWorkbook(file)
+        }
+        case GetSheet(wb, id) => {
+          wb.getSheetAt(id)
+        }
+        case GetRows(sheet) => {
+          sheet.iterator.toList
+        }
+        case GetCells(row) => {
+          row.cellIterator().toList
+        }
+      }
+    }
+
   // ADT describing the cell types available
   sealed trait PoiCell
   case class StrCell(s: String) extends PoiCell
@@ -69,36 +93,14 @@ object Utils {
 
 object Example {
   import Oewpoi._
-
-  // first (kinda dumb interpreter)
-  def unsafePerformIO: Poi ~> Id =
-    new (Poi ~> Id) {
-      def apply[A](fa: Poi[A]): Id[A] = fa match {
-        case GetWorkbook(fileName) => {
-          println(s"Getting file $fileName")
-          val file = new FileInputStream(new File(fileName))
-          new XSSFWorkbook(file)
-        }
-        case GetSheet(wb, id) => {
-          println(s"Getting sheet $wb $id")
-          wb.getSheetAt(id)
-        }
-        case GetRows(sheet) => {
-          println(s"Getting rows from $sheet")
-          sheet.iterator.toList
-        }
-        case GetCells(row) => {
-          println(s"Getting cells from $row")
-          row.cellIterator().toList
-        }
-      }
-    }
+  import Utils._
 
   def test = {
     for {
       wb <- getWorkbook("example.xlsx")
-      sh <- getSheet(wb, 1)
+      sh <- getSheet(wb, 0)
       r <- getRows(sh)
-    } yield r
+      c <- getCells(r.head)
+    } yield c
   }
 }
