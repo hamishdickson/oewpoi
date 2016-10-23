@@ -39,7 +39,7 @@ object Oewpoi {
     liftF[Poi, List[Cell]](GetCells(row))
 }
 
-object CellStuff {
+object Utils {
   // ADT describing the cell types available
   sealed trait PoiCell
   case class StrCell(s: String) extends PoiCell
@@ -99,7 +99,6 @@ object Example {
       wb <- getWorkbook("example.xlsx")
       sh <- getSheet(wb, 1)
       r <- getRows(sh)
-      _ = println(r)
     } yield r
   }
 }
