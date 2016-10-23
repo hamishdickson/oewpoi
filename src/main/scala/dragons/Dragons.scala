@@ -1,26 +1,25 @@
 package dragons
 
-import java.io.{FileInputStream, File}
-
-import org.apache.poi.xssf.usermodel._
-import org.apache.poi.ss.usermodel.{Row, Cell}
+import java.io.{File, FileInputStream}
 
 import scala.collection.JavaConversions._
 
 import cats._
-import cats.data._
 import cats.implicits._
+import org.apache.poi.ss.usermodel.{Cell, Row}
+import org.apache.poi.xssf.usermodel._
 
 /**
  * This is the kind of horrible code you'd have to write if you use poi "out the box"
  */
 object Dragons {
-  sealed trait PCell
-  case class StrCell(s: String) extends PCell
-  case class NumCell(d: Double) extends PCell
-  case class BoolCell(b: Boolean) extends PCell
-  case object BlackCell extends PCell
-  case class ErrorCell(e: Byte) extends PCell
+  sealed trait PoiCell
+  case class StrCell(s: String) extends PoiCell
+  case class NumCell(d: Double) extends PoiCell
+  case class BoolCell(b: Boolean) extends PoiCell
+  case object BlackCell extends PoiCell
+
+  case class ErrorCell(e: Byte) extends PoiCell
 
   def getWorkbook(fileName: String): XSSFWorkbook = {
     val file = new FileInputStream(new File(fileName))
@@ -43,8 +42,7 @@ object Dragons {
       c <- getCells(r)
     } yield c.show
 
-  // because... this enum thing is terrible
-  def getPCell(c: Cell): PCell = c.getCellType() match {
+  def getPCell(c: Cell): PoiCell = c.getCellType() match {
     case Cell.CELL_TYPE_STRING => StrCell(c.getStringCellValue())
     case Cell.CELL_TYPE_NUMERIC => NumCell(c.getNumericCellValue())
     case Cell.CELL_TYPE_ERROR => ErrorCell(c.getErrorCellValue())
