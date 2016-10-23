@@ -10,14 +10,16 @@ import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
 
 /**
- * This is the kind of horrible code you'd have to write if you use poi "out the box"
- */
+  * Please don't use this - it's nasty
+  * 
+  * This is the kinda of horrible code you'd have to write if you use poi "out the box"
+  */
 object Dragons {
   sealed trait PoiCell
   case class StrCell(s: String) extends PoiCell
   case class NumCell(d: Double) extends PoiCell
   case class BoolCell(b: Boolean) extends PoiCell
-  case object BlackCell extends PoiCell
+  case object BlankCell extends PoiCell
 
   case class ErrorCell(e: Byte) extends PoiCell
 
@@ -27,7 +29,7 @@ object Dragons {
   }
 
   def numSheets(wb: XSSFWorkbook): Int = wb.getNumberOfSheets()
-  
+
   def getSheet(wb: XSSFWorkbook, id: Int): XSSFSheet = wb.getSheetAt(id)
 
   /**
@@ -47,7 +49,7 @@ object Dragons {
     case Cell.CELL_TYPE_STRING => StrCell(c.getStringCellValue())
     case Cell.CELL_TYPE_NUMERIC => NumCell(c.getNumericCellValue())
     case Cell.CELL_TYPE_ERROR => ErrorCell(c.getErrorCellValue())
-    case Cell.CELL_TYPE_BLANK => BlackCell
+    case Cell.CELL_TYPE_BLANK => BlankCell
     case Cell.CELL_TYPE_BOOLEAN => BoolCell(c.getBooleanCellValue())
   }
 
