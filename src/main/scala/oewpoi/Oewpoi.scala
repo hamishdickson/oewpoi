@@ -6,6 +6,7 @@ import scala.collection.JavaConversions._
 
 import cats.free.Free
 import cats.free.Free._
+import cats.{Id, ~>}
 import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
 
@@ -25,6 +26,21 @@ object Oewpoi {
   def getSheet(wb: XSSFWorkbook, id: SheetId): PoiF[XSSFSheet] =
     liftF[Poi, XSSFSheet](GetSheet(wb, id))
 
+  // first (kinda dumb interpreter)
+  def unsafePerformIO: Poi ~> Id =
+    new (Poi ~> Id) {
+      def apply[A](fa: Poi[A]): Id[A] = fa match {
+        case GetWorkbook(fileName) => {
+          println(s"Getting file $fileName")
+          val file = new FileInputStream(new File(fileName))
+          new XSSFWorkbook(file)
+        }
+        case GetSheet(wb, id) => {
+          println(s"Getting sheet $wb $id")
+          wb.getSheetAt(id)
+        }
+      }
+    }
 }
 
 object Example {
