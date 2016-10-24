@@ -14,6 +14,8 @@ import cats.{Id, ~>}
 import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
 
+import fs2.{io, Task}
+
 
 object Oewpoi {
   type SheetId = Int
@@ -44,7 +46,7 @@ object Oewpoi {
 object Utils {
   import Oewpoi._
 
-  // first (kinda dumb interpreter)
+  // first (kinda dumb interpreter) - soon to be Poi ~> Task
   def unsafePerformIO: Poi ~> Id =
     new (Poi ~> Id) {
       def apply[A](fa: Poi[A]): Id[A] = fa match {
@@ -63,6 +65,28 @@ object Utils {
         }
       }
     }
+
+  def run: Poi ~> Task =
+    new (Poi ~> Task) {
+      def apply[A](fa: Poi[A]): Task[A] = fa match {
+        case GetWorkbook(fileName) => {
+          Task.delay {
+            val file = new FileInputStream(new File(fileName))
+            new XSSFWorkbook(file)
+          }
+        }
+        case GetSheet(wb, id) => {
+          Task.delay{ wb.getSheetAt(id) }
+        }
+        case GetRows(sheet) => {
+          Task.delay{ sheet.iterator.toList }
+        }
+        case GetCells(row) => {
+          Task.delay{ row.cellIterator().toList }
+        }
+      }
+    }
+
 
   // ADT describing the cell types available
   sealed trait PoiCell
