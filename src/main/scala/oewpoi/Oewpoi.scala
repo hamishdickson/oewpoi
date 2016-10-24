@@ -16,7 +16,6 @@ import org.apache.poi.xssf.usermodel._
 
 import fs2.{io, Task}
 
-
 object Oewpoi {
   type SheetId = Int
   type Rows = List[Row]
@@ -41,12 +40,8 @@ object Oewpoi {
 
   def getCells(row: Row): PoiF[Cells] =
     liftF[Poi, Cells](GetCells(row))
-}
 
-object Utils {
-  import Oewpoi._
-
-  // first (kinda dumb interpreter) - soon to be Poi ~> Task
+    // first (kinda dumb interpreter) - soon to be Poi ~> Task
   def unsafePerformIO: Poi ~> Id =
     new (Poi ~> Id) {
       def apply[A](fa: Poi[A]): Id[A] = fa match {
@@ -86,7 +81,10 @@ object Utils {
         }
       }
     }
+}
 
+object Utils {
+  import Oewpoi._
 
   // ADT describing the cell types available
   sealed trait PoiCell
