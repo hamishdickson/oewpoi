@@ -8,26 +8,36 @@ If you are after a scala library for POI today, don't use this - instead I sugge
 
 ```scala
 import oewpoi._
+import monix.cats._
 
 val foo = for {
     wb <- getWorkbook("example.xlsx")
     sh <- getSheet(wb, 1)
     r <- getRows(sh)
-} yield r
+    c <- getCells(r.head)
+} yield c
 
-foo.foldMap(unsafePerofrmIO)
+foo.foldMap(run).runAsync
 ```
 
-The aim here is to end up in a position where we can say
+This is a work in progress and the aim is to be able to say something like the following
 
 ```scala
 case class Bar(id: Int, age: Int, sex: String, occupation: String)
 
-foo.as[Bar]
-// Bar(1, 24, M, technician)
+val file = new FileInputStream(new File("myfile.xlsx"))
+
+val rows = 
+  for {
+    wb <- getWorkbook(file)
+    sh <- getSheet(wb, 1)
+    r <- getRows(sh)
+  } yield r
+
+val bars: List[Bar] = get[Bar](rows)
 ```
 
-or something... I'm still working on it
+or something... I don't know... I'm still working on it
 
 
 Credit: the idea for this library comes from discussions with the folks at [ASI Data Science](theasi.co)

@@ -117,9 +117,8 @@ object Utils {
 
 object Example {
   import Oewpoi._
-  import Utils._
   import monix.cats._
-  import monix.execution.Scheduler.Implicits.global
+
 
   def test = {
     for {
