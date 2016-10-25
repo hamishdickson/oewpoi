@@ -15,6 +15,8 @@ import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
 
 import monix.eval._
+import monix.cats._
+import monix.execution.Scheduler.Implicits.global
 
 object Oewpoi {
   type SheetId = Int
@@ -116,6 +118,8 @@ object Utils {
 object Example {
   import Oewpoi._
   import Utils._
+  import monix.cats._
+  import monix.execution.Scheduler.Implicits.global
 
   def test = {
     for {
@@ -125,4 +129,7 @@ object Example {
       c <- getCells(r.head)
     } yield c
   }
+
+  val test2 = test.foldMap(run)
+  val test3 = test2.runAsync
 }
