@@ -34,7 +34,15 @@ val rows =
     r <- getRows(sh)
   } yield r
 
-val bars: List[Bar] = get[Bar](rows)
+
+
+implicit val listBarCells = new Cells[List, Bar] = ??? 
+
+val bars: List[Bar] = get[List, Bar](rows)
+
+implicit val rddBarCells = new Cells[RDD, Bar] = ???
+
+val rddBars: RDD[Bar] = get[RDD, Bar](rows)
 ```
 
 or something... I don't know... I'm still working on it
