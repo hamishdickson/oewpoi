@@ -14,7 +14,7 @@ import cats.{Id, ~>}
 import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
 
-import fs2.{io, Task}
+import monix.eval._
 
 object Oewpoi {
   type SheetId = Int
@@ -65,19 +65,19 @@ object Oewpoi {
     new (Poi ~> Task) {
       def apply[A](fa: Poi[A]): Task[A] = fa match {
         case GetWorkbook(fileName) => {
-          Task.delay {
+          Task {
             val file = new FileInputStream(new File(fileName))
             new XSSFWorkbook(file)
           }
         }
         case GetSheet(wb, id) => {
-          Task.delay{ wb.getSheetAt(id) }
+          Task { wb.getSheetAt(id) }
         }
         case GetRows(sheet) => {
-          Task.delay{ sheet.iterator.toList }
+          Task { sheet.iterator.toList }
         }
         case GetCells(row) => {
-          Task.delay{ row.cellIterator().toList }
+          Task { row.cellIterator().toList }
         }
       }
     }
