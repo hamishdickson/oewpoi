@@ -34,8 +34,6 @@ val rows =
     r <- getRows(sh)
   } yield r
 
-
-
 implicit val listBarCells = new Cells[List, Bar] = ??? 
 
 val bars: List[Bar] = get[List, Bar](rows)
