@@ -43,7 +43,7 @@ object Oewpoi {
   def getCells(row: Row): PoiF[Cells] =
     liftF[Poi, Cells](GetCells(row))
 
-    // first (kinda dumb interpreter) - soon to be Poi ~> Task
+  // first (kinda dumb interpreter)
   def unsafePerformIO: Poi ~> Id =
     new (Poi ~> Id) {
       def apply[A](fa: Poi[A]): Id[A] = fa match {
@@ -86,7 +86,49 @@ object Oewpoi {
 }
 
 object Utils {
+
+}
+
+
+object Example {
   import Oewpoi._
+  import monix.cats._
+  import monix.execution.Scheduler.Implicits.global
+
+  def test = {
+    for {
+      wb <- getWorkbook("example.xlsx")
+      sh <- getSheet(wb, 0)
+      r <- getRows(sh)
+      c <- getCells(r.tail.head)
+    } yield c
+  }
+
+  val test2 = test.foldMap(run)
+  val test3 = test2.runAsync
+
+  val testId = test.foldMap(unsafePerformIO)
+}
+
+object TypelevelPoi {
+  import Oewpoi._
+  // shapeless stuff
+  import shapeless._
+
+  case class Person(id: Int, age: Int, sex: String, occupation: String)
+
+  type pType = Int :: Int :: String :: String :: HNil
+
+  trait BuildPerson[T] {
+    def build: Xor[String, T]
+  }
+
+  val thing = 99 :: 10 :: "M" :: "Fireman" :: HNil
+
+  val personGen = Generic[Person]
+  val person2 = personGen.from(thing)
+
+  // need to be able to convert a list of Cells -> HList
 
   // ADT describing the cell types available
   sealed trait PoiCell
@@ -113,22 +155,4 @@ object Utils {
       case Cell.CELL_TYPE_BOOLEAN => c.getBooleanCellValue().show
     }
   }
-}
-
-object Example {
-  import Oewpoi._
-  import monix.cats._
-
-
-  def test = {
-    for {
-      wb <- getWorkbook("example.xlsx")
-      sh <- getSheet(wb, 0)
-      r <- getRows(sh)
-      c <- getCells(r.head)
-    } yield c
-  }
-
-  val test2 = test.foldMap(run)
-  val test3 = test2.runAsync
 }
