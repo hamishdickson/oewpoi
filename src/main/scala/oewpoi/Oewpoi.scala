@@ -28,6 +28,7 @@ object Oewpoi {
   case class GetSheet(wb: XSSFWorkbook, id: SheetId) extends Poi[XSSFSheet]
   case class GetRows(sheet: XSSFSheet) extends Poi[Rows]
   case class GetCells(row: Row) extends Poi[Cells]
+  case class Get(fileName: String) extends Poi[Cells]
 
   type PoiF[A] = Free[Poi, A]
 
@@ -42,6 +43,9 @@ object Oewpoi {
 
   def getCells(row: Row): PoiF[Cells] =
     liftF[Poi, Cells](GetCells(row))
+
+  def get(fileName: String): PoiF[Cells] =
+    liftF[Poi, Cells](Get(fileName))
 
   // first (kinda dumb interpreter)
   def unsafePerformIO: Poi ~> Id =
@@ -60,35 +64,47 @@ object Oewpoi {
         case GetCells(row) => {
           row.cellIterator().toList
         }
+        case Get(fileName) => {
+          // todo see if we can reuse logic here
+          val file = new FileInputStream(new File(fileName))
+          val wb = new XSSFWorkbook(file)
+          val sh = wb.getSheetAt(0)
+          val rows = sh.iterator.toList
+          // todo clearly wrong
+          rows.head.cellIterator.toList
+        }
       }
     }
 
   def run: Poi ~> Task =
     new (Poi ~> Task) {
       def apply[A](fa: Poi[A]): Task[A] = fa match {
-        case GetWorkbook(fileName) => {
+        case GetWorkbook(fileName) =>
           Task {
             val file = new FileInputStream(new File(fileName))
             new XSSFWorkbook(file)
           }
-        }
-        case GetSheet(wb, id) => {
+        case GetSheet(wb, id) =>
           Task { wb.getSheetAt(id) }
-        }
-        case GetRows(sheet) => {
+        case GetRows(sheet) =>
           Task { sheet.iterator.toList }
-        }
-        case GetCells(row) => {
+        case GetCells(row) =>
           Task { row.cellIterator().toList }
+        case Get(fileName) => Task {
+          // todo see if we can reuse logic here
+          val file = new FileInputStream(new File(fileName))
+          val wb = new XSSFWorkbook(file)
+          val sh = wb.getSheetAt(0)
+          val rows = sh.iterator.toList
+          // todo clearly wrong
+          rows.head.cellIterator.toList
         }
       }
     }
 }
 
-object Utils {
 
-}
-
+case class Person(id: Int, age: Int, sex: String, occupation: String)
 
 object Example {
   import Oewpoi._
@@ -108,27 +124,20 @@ object Example {
   val test3 = test2.runAsync
 
   val testId = test.foldMap(unsafePerformIO)
+
+  val testGetAsList = get("example.xlsx").foldMap(unsafePerformIO)
 }
 
 object TypelevelPoi {
   import Oewpoi._
-  // shapeless stuff
   import shapeless._
 
-  case class Person(id: Int, age: Int, sex: String, occupation: String)
-
   type pType = Int :: Int :: String :: String :: HNil
-
-  trait BuildPerson[T] {
-    def build: Xor[String, T]
-  }
 
   val thing = 99 :: 10 :: "M" :: "Fireman" :: HNil
 
   val personGen = Generic[Person]
   val person2 = personGen.from(thing)
-
-  // need to be able to convert a list of Cells -> HList
 
   // ADT describing the cell types available
   sealed trait PoiCell
