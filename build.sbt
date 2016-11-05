@@ -4,6 +4,8 @@ version := "0.0.1"
 
 scalaVersion := "2.11.8"
 
+scalaOrganization in ThisBuild := "org.typelevel"
+
 lazy val catsVersion = "0.7.0"
 lazy val poiVersion = "3.14"
 lazy val monixVersion = "2.0.5"
