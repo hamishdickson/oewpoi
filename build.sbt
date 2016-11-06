@@ -4,10 +4,9 @@ version := "0.0.1"
 
 scalaVersion := "2.11.8"
 
-scalaOrganization in ThisBuild := "org.typelevel"
-
-scalacOptions += "-Ypartial-unification" // enable fix for SI-2712
-scalacOptions += "-Yliteral-types"       // enable SIP-23 implementation
+//scalaOrganization in ThisBuild := "org.typelevel"
+//scalacOptions += "-Ypartial-unification" // enable fix for SI-2712
+//scalacOptions += "-Yliteral-types"       // enable SIP-23 implementation
 
 lazy val catsVersion = "0.7.0"
 lazy val poiVersion = "3.14"
