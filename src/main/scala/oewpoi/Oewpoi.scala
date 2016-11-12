@@ -2,7 +2,7 @@ package oewpoi
 
 import java.io.{File, FileInputStream}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import cats._
 import cats.implicits._
@@ -56,19 +56,19 @@ object Oewpoi {
           wb.getSheetAt(id)
         }
         case GetRows(sheet) => {
-          sheet.iterator.toList
+          sheet.iterator.asScala.toList
         }
         case GetCells(row) => {
-          row.cellIterator().toList
+          row.cellIterator().asScala.toList
         }
         case Get(fileName) => {
           // todo see if we can reuse logic here
           val file = new FileInputStream(new File(fileName))
           val wb = new XSSFWorkbook(file)
           val sh = wb.getSheetAt(0)
-          val rows = sh.iterator.toList
+          val rows = sh.iterator.asScala.toList
           // todo clearly wrong
-          rows.head.cellIterator.toList
+          rows.head.cellIterator.asScala.toList
         }
       }
     }
@@ -84,17 +84,17 @@ object Oewpoi {
         case GetSheet(wb, id) =>
           Task { wb.getSheetAt(id) }
         case GetRows(sheet) =>
-          Task { sheet.iterator.toList }
+          Task { sheet.iterator.asScala.toList }
         case GetCells(row) =>
-          Task { row.cellIterator().toList }
+          Task { row.cellIterator().asScala.toList }
         case Get(fileName) => Task {
           // todo see if we can reuse logic here
           val file = new FileInputStream(new File(fileName))
           val wb = new XSSFWorkbook(file)
           val sh = wb.getSheetAt(0)
-          val rows = sh.iterator.toList
+          val rows = sh.iterator.asScala.toList
           // todo clearly wrong
-          rows.head.cellIterator.toList
+          rows.head.cellIterator.asScala.toList
         }
       }
     }

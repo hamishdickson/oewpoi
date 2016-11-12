@@ -2,7 +2,7 @@ name := "oewpoi"
 
 version := "0.0.1"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.0"
 
 //scalaOrganization in ThisBuild := "org.typelevel"
 //scalacOptions += "-Ypartial-unification" // enable fix for SI-2712
@@ -26,9 +26,9 @@ scalacOptions ++= Seq(
   "-Ywarn-unused-import"     // 2.11 only
 )
 
-lazy val catsVersion = "0.7.0"
+lazy val catsVersion = "0.8.1"
 lazy val poiVersion = "3.14"
-lazy val monixVersion = "2.0.5"
+lazy val monixVersion = "2.1.0"
 lazy val shapelessVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
