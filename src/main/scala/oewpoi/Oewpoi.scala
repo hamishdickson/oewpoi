@@ -5,7 +5,6 @@ import java.io.{File, FileInputStream}
 import scala.collection.JavaConversions._
 
 import cats._
-import cats.data._
 import cats.implicits._
 
 import cats.free.Free
@@ -15,8 +14,6 @@ import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
 
 import monix.eval._
-import monix.cats._
-import monix.execution.Scheduler.Implicits.global
 
 object Oewpoi {
   type SheetId = Int
@@ -104,8 +101,6 @@ object Oewpoi {
 }
 
 object TypelevelPoi {
-  import Oewpoi._
-
   // ADT describing the cell types available
   sealed trait PoiCell
   case class StrCell(s: String) extends PoiCell

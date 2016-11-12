@@ -8,6 +8,24 @@ scalaVersion := "2.11.8"
 //scalacOptions += "-Ypartial-unification" // enable fix for SI-2712
 //scalacOptions += "-Yliteral-types"       // enable SIP-23 implementation
 
+scalacOptions ++= Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",       // yes, this is 2 args
+  "-feature",
+  "-language:existentials",
+  "-language:higherKinds",
+  "-language:implicitConversions",
+  "-unchecked",
+  "-Xfatal-warnings",
+  "-Xlint",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",        // N.B. doesn't work well with the ??? hole
+  "-Ywarn-numeric-widen",
+  "-Ywarn-value-discard",
+  "-Xfuture",
+  "-Ywarn-unused-import"     // 2.11 only
+)
+
 lazy val catsVersion = "0.7.0"
 lazy val poiVersion = "3.14"
 lazy val monixVersion = "2.0.5"
