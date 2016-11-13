@@ -5,11 +5,13 @@ import oewpoi._
 case class Person(id: Int, age: Int, sex: String, occupation: String)
 
 object Example {
-  import Oewpoi._
+  import ApiIo._
+  import SimpleInterpreter._
+  import PoiInterpreter._
   import monix.cats._
   import monix.execution.Scheduler.Implicits.global
   import shapeless._
-  
+
   def test = {
     for {
       wb <- getWorkbook("example.xlsx")

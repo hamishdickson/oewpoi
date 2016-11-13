@@ -1,19 +1,11 @@
 package oewpoi
 
-import java.io.{File, FileInputStream}
-
-import scala.collection.JavaConverters._
-
 import cats._
 import cats.implicits._
 
 import cats.free.Free
-import cats.free.Free._
-import cats.{Id, ~>}
 import org.apache.poi.ss.usermodel.{Cell, Row}
 import org.apache.poi.xssf.usermodel._
-
-import monix.eval._
 
 object Oewpoi {
   type SheetId = Int
@@ -28,76 +20,6 @@ object Oewpoi {
   case class Get(fileName: String) extends Poi[Cells]
 
   type PoiF[A] = Free[Poi, A]
-
-  def getWorkbook(fileName: String): PoiF[XSSFWorkbook] =
-    liftF[Poi, XSSFWorkbook](GetWorkbook(fileName))
-
-  def getSheet(wb: XSSFWorkbook, id: SheetId): PoiF[XSSFSheet] =
-    liftF[Poi, XSSFSheet](GetSheet(wb, id))
-
-  def getRows(sheet: XSSFSheet): PoiF[Rows] =
-    liftF[Poi, Rows](GetRows(sheet))
-
-  def getCells(row: Row): PoiF[Cells] =
-    liftF[Poi, Cells](GetCells(row))
-
-  def get(fileName: String): PoiF[Cells] =
-    liftF[Poi, Cells](Get(fileName))
-
-  // first (kinda dumb interpreter)
-  def unsafePerformIO: Poi ~> Id =
-    new (Poi ~> Id) {
-      def apply[A](fa: Poi[A]): Id[A] = fa match {
-        case GetWorkbook(fileName) => {
-          val file = new FileInputStream(new File(fileName))
-          new XSSFWorkbook(file)
-        }
-        case GetSheet(wb, id) => {
-          wb.getSheetAt(id)
-        }
-        case GetRows(sheet) => {
-          sheet.iterator.asScala.toList
-        }
-        case GetCells(row) => {
-          row.cellIterator().asScala.toList
-        }
-        case Get(fileName) => {
-          // todo see if we can reuse logic here
-          val file = new FileInputStream(new File(fileName))
-          val wb = new XSSFWorkbook(file)
-          val sh = wb.getSheetAt(0)
-          val rows = sh.iterator.asScala.toList
-          // todo clearly wrong
-          rows.head.cellIterator.asScala.toList
-        }
-      }
-    }
-
-  def run: Poi ~> Task =
-    new (Poi ~> Task) {
-      def apply[A](fa: Poi[A]): Task[A] = fa match {
-        case GetWorkbook(fileName) =>
-          Task {
-            val file = new FileInputStream(new File(fileName))
-            new XSSFWorkbook(file)
-          }
-        case GetSheet(wb, id) =>
-          Task { wb.getSheetAt(id) }
-        case GetRows(sheet) =>
-          Task { sheet.iterator.asScala.toList }
-        case GetCells(row) =>
-          Task { row.cellIterator().asScala.toList }
-        case Get(fileName) => Task {
-          // todo see if we can reuse logic here
-          val file = new FileInputStream(new File(fileName))
-          val wb = new XSSFWorkbook(file)
-          val sh = wb.getSheetAt(0)
-          val rows = sh.iterator.asScala.toList
-          // todo clearly wrong
-          rows.head.cellIterator.asScala.toList
-        }
-      }
-    }
 }
 
 object TypelevelPoi {
