@@ -44,6 +44,3 @@ val rddBars: RDD[Bar] = get[RDD, Bar](rows)
 ```
 
 or something... I don't know... I'm still working on it
-
-
-Credit: the idea for this library comes from discussions with the folks at [ASI Data Science](theasi.co)
